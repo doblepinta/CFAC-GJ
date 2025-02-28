@@ -6,6 +6,13 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    enum PlayerState { Idle,Running, Airbone}
+
+    public Animator anim;
+
+    PlayerState state;
+    bool stateComplete;
+
     public Rigidbody2D rigid;
     public BoxCollider2D groundCheck;
     public LayerMask groundMask;
@@ -28,6 +35,13 @@ public class PlayerMovement : MonoBehaviour
         CheckInput();
         HandleJump();
 
+        if (stateComplete)
+        {
+            SelectState();
+        }
+
+        UpdateState();
+
     }
     private void FixedUpdate()
     {
@@ -36,6 +50,94 @@ public class PlayerMovement : MonoBehaviour
         HandleXMovement();
 
 
+    }
+
+
+    void SelectState()
+    {
+        stateComplete = false;
+
+        if (grounded)
+        {
+            if (xInput == 0)
+            {
+                state = PlayerState.Idle;
+                StartIdle();
+            }
+            else
+            {
+                state = PlayerState.Running;
+                StartRunning();
+            }
+        }
+        else
+        {
+            state = PlayerState.Airbone;
+            StartAirbone();
+        }
+    }
+
+    void UpdateState()
+    {
+        switch(state)
+        {
+            case PlayerState.Idle:
+                UpdateIdle();
+                break;
+            case PlayerState.Running:
+                UpdateRunning();
+                break;
+            case PlayerState.Airbone:
+                UpdateAirbone();
+                break;
+        }
+    }
+
+    void StartIdle()
+    {
+        anim.Play("Idle");
+    }
+
+    void StartRunning()
+    {
+        anim.Play("Running");
+    }
+
+    void StartAirbone()
+    {
+        anim.Play("Airbone");
+    }
+
+    void UpdateIdle()
+    {
+        if (xInput != 0 || !grounded)
+        {
+            stateComplete = true;
+        }
+    }
+
+    void UpdateRunning()
+    {
+
+        float velX = rigid.velocity.x;
+        anim.speed = Mathf.Abs(velX) / maxXSpeed;
+        if (!grounded || Mathf.Abs (velX) < 0.1f)
+        {
+            stateComplete = true;
+        }
+    }
+
+    void UpdateAirbone()
+    {
+
+        float time = Map(rigid.velocity.y, jumpSpeed, -jumpSpeed, 0, 1, true);
+        anim.Play("Airbone", 0, time);
+        anim.speed = 0;
+
+        if (grounded)
+        {
+            stateComplete = true;
+        }
     }
 
     void HandleXMovement()
@@ -77,13 +179,19 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckInput()
     {
-        xInput = Input.GetAxis("Horizontal");
-        yInput = Input.GetAxis("Vertical");
+        xInput = Input.GetAxisRaw("Horizontal");
+        yInput = Input.GetAxisRaw("Vertical");
     }
 
 
     void CheckGround()
     {
         grounded = Physics2D.OverlapAreaAll(groundCheck.bounds.min, groundCheck.bounds.max, groundMask).Length > 0;
+    }
+
+    public static float Map(float value, float min1, float max1, float min2, float max2, bool clamp = false)
+    {
+        float val = min2 + (max2 - min2) * ((value - min1) / (max1 - min1));
+        return clamp ? Mathf.Clamp(value, Mathf.Min(min2, max2), Mathf.Max(min2, max2)) : val;
     }
 }
