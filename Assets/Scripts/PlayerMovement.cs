@@ -100,7 +100,14 @@ public class PlayerMovement : MonoBehaviour
 
     void StartRunning()
     {
-        anim.Play("Running");
+        if(xInput > 0)
+        {
+            anim.Play("Running");
+        }
+        else if(xInput < 0)
+        {
+            anim.Play("RunningLeft");
+        }
     }
 
     void StartAirbone()
