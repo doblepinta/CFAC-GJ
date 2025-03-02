@@ -95,7 +95,14 @@ public class PlayerMovement : MonoBehaviour
 
     void StartIdle()
     {
-        anim.Play("Idle");
+        if (xInput > 0)
+        {
+            anim.Play("IdleRight");
+        }
+        else if (xInput < 0)
+        {
+            anim.Play("Idle");
+        }
     }
 
     void StartRunning()
@@ -135,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
 
         float velX = rigid.velocity.x;
         anim.speed = Mathf.Abs(velX) / maxXSpeed;
-        if (!grounded || Mathf.Abs (velX) < 0.1f)
+        if (!grounded || Mathf.Abs (velX) < 0.1f || xInput == 0)
         {
             stateComplete = true;
         }

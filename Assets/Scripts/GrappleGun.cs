@@ -31,6 +31,7 @@ public class GrappleGun : MonoBehaviour
     [SerializeField] private bool hasMaxDistance = false;
     [SerializeField] private float maxDistnace = 20;
 
+    [Range(0, 10)] [SerializeField] private float gravityScale;
     private enum LaunchType
     {
         Transform_Launch,
@@ -95,6 +96,7 @@ public class GrappleGun : MonoBehaviour
         {
             Vector2 mousePos = m_camera.ScreenToWorldPoint(Input.mousePosition);
             RotateGun(mousePos, true);
+            m_rigidbody.gravityScale = gravityScale;
         }
     }
 
