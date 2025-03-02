@@ -46,12 +46,12 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         CheckGround();
-        ApplyFriction();
         HandleXMovement();
+        ApplyFriction();
+
 
 
     }
-
 
     void SelectState()
     {
@@ -112,7 +112,14 @@ public class PlayerMovement : MonoBehaviour
 
     void StartAirbone()
     {
-        anim.Play("Airbone");
+        if (xInput > 0)
+        {
+            anim.Play("Airbone");
+        }
+        else if (xInput < 0)
+        {
+            anim.Play("AirboneLeft");
+        }
     }
 
     void UpdateIdle()
@@ -156,7 +163,7 @@ public class PlayerMovement : MonoBehaviour
             rigid.velocity = new Vector2(newSpeed, rigid.velocity.y);
 
 
-            FaceInput();
+           // FaceInput();
 
         }
 
@@ -178,7 +185,7 @@ public class PlayerMovement : MonoBehaviour
     }
     void ApplyFriction()
     {
-        if (grounded && xInput == 0 && rigid.velocity.y <= 0)
+        if (grounded && Mathf.Abs(rigid.velocity.x) >= 0 && rigid.velocity.y <= 0)
         {
             rigid.velocity *= groundDecay;
         }
